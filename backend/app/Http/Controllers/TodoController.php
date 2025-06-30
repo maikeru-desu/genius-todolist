@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Actions\Todo\CreateTodoAction;
@@ -7,15 +9,16 @@ use App\Actions\Todo\DeleteTodoAction;
 use App\Actions\Todo\GetTodoAction;
 use App\Actions\Todo\ListTodosAction;
 use App\Actions\Todo\UpdateTodoAction;
-use App\Http\Requests\DeleteTodoRequest;
 use App\Http\Requests\CreateTodoRequest;
+use App\Http\Requests\DeleteTodoRequest;
 use App\Http\Requests\UpdateTodoRequest;
 use App\Models\Todo;
 use App\Traits\ApiResponse;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class TodoController extends Controller
+final class TodoController extends Controller
 {
     use ApiResponse;
 
@@ -28,7 +31,7 @@ class TodoController extends Controller
             $todos = $action->handle($request->user(), $request->all());
 
             return $this->paginatedResponse($todos);
-        } catch (\Exception $th) {
+        } catch (Exception $th) {
             return $this->errorResponse($th->getMessage(), $th->getCode());
         }
     }
@@ -42,7 +45,7 @@ class TodoController extends Controller
             $todo = $action->handle($request->user(), $request->validated());
 
             return $this->successResponse($todo, 'Todo created successfully', 201);
-        } catch (\Exception $th) {
+        } catch (Exception $th) {
             return $this->errorResponse($th->getMessage(), $th->getCode());
         }
     }
@@ -56,7 +59,7 @@ class TodoController extends Controller
             $todo = $action->handle($todo);
 
             return $this->successResponse($todo, 'Todo retrieved successfully');
-        } catch (\Exception $th) {
+        } catch (Exception $th) {
             return $this->errorResponse($th->getMessage(), $th->getCode());
         }
     }
@@ -70,7 +73,7 @@ class TodoController extends Controller
             $todo = $action->handle($todo, $request->validated());
 
             return $this->successResponse($todo, 'Todo updated successfully');
-        } catch (\Exception $th) {
+        } catch (Exception $th) {
             return $this->errorResponse($th->getMessage(), $th->getCode());
         }
     }
@@ -84,7 +87,7 @@ class TodoController extends Controller
             $action->handle($todo);
 
             return $this->successResponse(null, 'Todo deleted successfully');
-        } catch (\Exception $th) {
+        } catch (Exception $th) {
             return $this->errorResponse($th->getMessage(), $th->getCode());
         }
     }

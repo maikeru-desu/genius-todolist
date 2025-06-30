@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Todo extends Model
+final class Todo extends Model
 {
     use HasFactory;
 
@@ -24,7 +26,15 @@ class Todo extends Model
         'priority',
     ];
 
-     /**
+    /**
+     * Get the user that owns the todo.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -36,13 +46,5 @@ class Todo extends Model
             'due_date' => 'datetime',
             'priority' => 'integer',
         ];
-    }
-
-    /**
-     * Get the user that owns the todo.
-     */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
     }
 }

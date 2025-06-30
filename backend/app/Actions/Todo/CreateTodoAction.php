@@ -1,23 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Todo;
 
 use App\Models\Todo;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
-class CreateTodoAction
+final class CreateTodoAction
 {
     /**
      * Handle the create todo action.
-     *
-     * @param User $user
-     * @param array $data
-     * @return Todo
      */
     public function handle(User $user, array $data): Todo
     {
-        return DB::transaction(function() use ($user, $data) {
+        return DB::transaction(function () use ($user, $data) {
             return $user->todos()->create([
                 'title' => $data['title'],
                 'description' => $data['description'] ?? null,
