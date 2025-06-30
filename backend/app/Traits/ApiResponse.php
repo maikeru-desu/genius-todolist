@@ -55,6 +55,6 @@ trait ApiResponse
                 'to' => $paginator->lastItem(),
                 'has_more_pages' => $paginator->hasMorePages(),
             ],
-        ]);
+        ], $statusCode);
     }
 }
