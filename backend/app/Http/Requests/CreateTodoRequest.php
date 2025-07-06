@@ -25,7 +25,7 @@ final class CreateTodoRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [        
+        return [
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'due_date' => 'nullable|date',

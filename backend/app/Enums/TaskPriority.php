@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Enums;
 
 enum TaskPriority: int
@@ -20,26 +22,22 @@ enum TaskPriority: int
 
     /**
      * Get the color class associated with this priority
-     *
-     * @return string
      */
     public function color(): string
     {
-        return match($this) {
+        return match ($this) {
             self::HIGH => 'bg-red-100 text-red-800',
             self::MEDIUM => 'bg-yellow-100 text-yellow-800',
             self::LOW => 'bg-green-100 text-green-800',
         };
     }
-    
+
     /**
      * Get the name of this priority level
-     * 
-     * @return string
      */
     public function name(): string
     {
-        return match($this) {
+        return match ($this) {
             self::HIGH => 'high',
             self::MEDIUM => 'medium',
             self::LOW => 'low',
@@ -48,12 +46,10 @@ enum TaskPriority: int
 
     /**
      * Get the badge text for this priority
-     *
-     * @return string
      */
     public function label(): string
     {
-        return match($this) {
+        return match ($this) {
             self::HIGH => 'High Priority',
             self::MEDIUM => 'Medium Priority',
             self::LOW => 'Low Priority',
@@ -62,12 +58,10 @@ enum TaskPriority: int
 
     /**
      * Get numeric value for sorting (higher number = higher priority)
-     *
-     * @return int
      */
     public function sortOrder(): int
     {
-        return match($this) {
+        return match ($this) {
             self::HIGH => 2,
             self::MEDIUM => 1,
             self::LOW => 0,
