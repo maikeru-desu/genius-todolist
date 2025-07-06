@@ -22,6 +22,7 @@ final class CreateTodoAction
                 'description' => $data['description'] ?? null,
                 'due_date' => $data['due_date'] ?? null,
                 'is_completed' => $data['is_completed'] ?? false,
+                'target_time' => $data['target_time'] ?? null,
                 'priority' => $data['priority'] ?? TaskPriority::LOW,
             ]);
         });

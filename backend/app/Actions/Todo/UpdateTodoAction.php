@@ -20,6 +20,7 @@ final class UpdateTodoAction
                 'description' => $data['description'] ?? $todo->description,
                 'due_date' => $data['due_date'] ?? $todo->due_date,
                 'is_completed' => $data['is_completed'] ?? $todo->is_completed,
+                'target_time' => $data['target_time'] ?? $todo->target_time,
                 'priority' => $data['priority'] ?? $todo->priority,
             ]);
 
