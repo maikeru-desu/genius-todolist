@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 
-class OpenAIService
+final class OpenAIService
 {
     public function chat($prompt)
     {

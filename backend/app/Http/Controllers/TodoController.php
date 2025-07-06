@@ -13,7 +13,6 @@ use App\Http\Requests\CreateTodoRequest;
 use App\Http\Requests\DeleteTodoRequest;
 use App\Http\Requests\UpdateTodoRequest;
 use App\Models\Todo;
-use App\Traits\ApiResponse;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

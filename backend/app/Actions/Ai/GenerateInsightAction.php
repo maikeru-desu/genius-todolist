@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Ai;
 
 use App\Models\Todo;
 use App\Services\OpenRouterService;
 use Illuminate\Support\Facades\Auth;
 
-class GenerateInsightAction
+final class GenerateInsightAction
 {
     public function execute(OpenRouterService $aiService)
     {
