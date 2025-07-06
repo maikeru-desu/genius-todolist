@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Todo;
 
+use App\Enums\TaskPriority;
 use App\Models\Todo;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +22,7 @@ final class CreateTodoAction
                 'description' => $data['description'] ?? null,
                 'due_date' => $data['due_date'] ?? null,
                 'is_completed' => $data['is_completed'] ?? false,
-                'priority' => $data['priority'] ?? 0,
+                'priority' => $data['priority'] ?? TaskPriority::LOW,
             ]);
         });
     }

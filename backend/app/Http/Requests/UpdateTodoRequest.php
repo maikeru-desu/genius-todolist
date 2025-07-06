@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Enums\TaskPriority;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 final class UpdateTodoRequest extends FormRequest
 {
@@ -28,7 +30,7 @@ final class UpdateTodoRequest extends FormRequest
             'description' => 'nullable|string',
             'due_date' => 'nullable|date',
             'is_completed' => 'nullable|boolean',
-            'priority' => 'nullable|integer|min:0|max:2',
+            'priority' => ['nullable', new Enum(TaskPriority::class)],
         ];
     }
 
