@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 import { marked } from 'marked';
 import useAi from '../composables/useAi';
 import useTodos from '../composables/useTodos';
+import TodoModal from '../components/TodoModal.vue';
 
 // Get todos data using Vue Query
 const { 
@@ -10,8 +11,32 @@ const {
   isLoadingTodos,
   todosError,
   refreshTodos,
-  updateTodo
+  updateTodo,
+  createTodo,
+  isCreatingTodo
 } = useTodos();
+
+// Todo modal state
+const isTodoModalOpen = ref(false);
+
+// Handle save todo
+const handleSaveTodo = async (formData) => {
+  try {
+    // Format date and time correctly for backend
+    const todoData = {
+      ...formData,
+      // Include formatted date only if it's provided
+      due_date: formData.due_date ? formData.due_date : null
+    };
+    
+    await createTodo(todoData);
+    // Close modal after successful creation
+    isTodoModalOpen.value = false;
+  } catch (error) {
+    console.error('Failed to create todo:', error);
+    // Handle error (could add toast notification here)
+  }
+};
 
 // Get AI insights using Vue Query
 const { aiInsight, isLoadingInsight, insightError, refreshInsight } = useAi();
@@ -107,6 +132,7 @@ const formatTime = (timeString) => {
         <div class="sm:flex sm:items-center sm:justify-between mb-8">
           <h2 class="text-2xl font-bold text-gray-900">My Tasks</h2>
           <button
+            @click="isTodoModalOpen = true"
             class="mt-4 sm:mt-0 inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
           >
             <svg class="-ml-0.5 mr-1.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -221,5 +247,13 @@ const formatTime = (timeString) => {
         
       </div>
     </main>
+    
+    <!-- Todo Modal Component -->
+    <TodoModal 
+      :is-open="isTodoModalOpen"
+      :is-submitting="isCreatingTodo"
+      @close="isTodoModalOpen = false"
+      @save="handleSaveTodo"
+    />
   </div>
 </template>
