@@ -18,8 +18,17 @@ const {
 
 // Todo modal state
 const isTodoModalOpen = ref(false);
+const isEditMode = ref(false);
+const currentTodo = ref(null);
 
-// Handle save todo
+// Open edit modal for a todo
+const openEditModal = (todo) => {
+  currentTodo.value = todo;
+  isEditMode.value = true;
+  isTodoModalOpen.value = true;
+};
+
+// Handle save todo (both create and update)
 const handleSaveTodo = async (formData) => {
   try {
     // Format date and time correctly for backend
@@ -29,13 +38,32 @@ const handleSaveTodo = async (formData) => {
       due_date: formData.due_date ? formData.due_date : null
     };
     
-    await createTodo(todoData);
-    // Close modal after successful creation
+    if (isEditMode.value && currentTodo.value) {
+      // Update existing todo
+      await updateTodo({
+        id: currentTodo.value.id,
+        data: todoData
+      });
+    } else {
+      // Create new todo
+      await createTodo(todoData);
+    }
+    
+    // Close modal and reset state
     isTodoModalOpen.value = false;
+    isEditMode.value = false;
+    currentTodo.value = null;
   } catch (error) {
-    console.error('Failed to create todo:', error);
+    console.error('Failed to save todo:', error);
     // Handle error (could add toast notification here)
   }
+};
+
+// Open modal for new todo
+const openNewTodoModal = () => {
+  isEditMode.value = false;
+  currentTodo.value = null;
+  isTodoModalOpen.value = true;
 };
 
 // Get AI insights using Vue Query
@@ -132,7 +160,7 @@ const formatTime = (timeString) => {
         <div class="sm:flex sm:items-center sm:justify-between mb-8">
           <h2 class="text-2xl font-bold text-gray-900">My Tasks</h2>
           <button
-            @click="isTodoModalOpen = true"
+            @click="openNewTodoModal()"
             class="mt-4 sm:mt-0 inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
           >
             <svg class="-ml-0.5 mr-1.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -227,7 +255,11 @@ const formatTime = (timeString) => {
                   </div>
                 </div>
                 <div class="flex gap-2">
-                  <button class="rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-600">
+                  <button 
+                    @click="openEditModal(todo)"
+                    class="rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-600"
+                    title="Edit task"
+                  >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                     </svg>
@@ -251,8 +283,10 @@ const formatTime = (timeString) => {
     <!-- Todo Modal Component -->
     <TodoModal 
       :is-open="isTodoModalOpen"
-      :is-submitting="isCreatingTodo"
-      @close="isTodoModalOpen = false"
+      :is-edit-mode="isEditMode"
+      :todo="currentTodo"
+      :is-submitting="isEditMode ? isUpdatingTodo : isCreatingTodo"
+      @close="isTodoModalOpen = false; isEditMode = false; currentTodo = null;"
       @save="handleSaveTodo"
     />
   </div>
