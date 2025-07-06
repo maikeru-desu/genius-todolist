@@ -21,7 +21,6 @@ export default function useAuth() {
     enabled: computed(() => isAuthenticated.value),
     staleTime: 300000, // 5 minutes
     retry: (failureCount, error) => {
-      // Don't retry if error is 401 Unauthorized
       if (error.response?.status === 401) {
         localStorage.removeItem('isAuthenticated');
         return false;

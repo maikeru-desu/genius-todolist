@@ -25,6 +25,7 @@ final class Todo extends Model
         'description',
         'is_completed',
         'due_date',
+        'target_time',
         'priority',
     ];
 
@@ -78,6 +79,7 @@ final class Todo extends Model
         return [
             'is_completed' => 'boolean',
             'due_date' => 'datetime',
+            'target_time' => 'datetime:H:i',
             'priority' => TaskPriority::class,
         ];
     }

@@ -20,8 +20,6 @@ use Illuminate\Http\Request;
 
 final class TodoController extends Controller
 {
-    use ApiResponse;
-
     /**
      * Display a listing of the todos.
      */

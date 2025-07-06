@@ -1,5 +1,15 @@
 import axios from 'axios';
 
+/**
+ * Get cookie by name
+ * @param {string} name - Cookie name
+ * @returns {string|null} - Cookie value or null
+ */
+function getCookie(name) {
+  const match = document.cookie.match(new RegExp('(^|;\\s*)' + name + '=([^;]*)'));
+  return match ? match[2] : null;
+}
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:8000',
   headers: {
@@ -7,6 +17,17 @@ const api = axios.create({
     'Accept': 'application/json',
   },
   withCredentials: true, // Important for Laravel Sanctum cookie authentication
+});
+
+// Add request interceptor to include CSRF token
+api.interceptors.request.use(request => {
+  // Get the XSRF-TOKEN from cookie
+  const token = getCookie('XSRF-TOKEN');
+  if (token) {
+    // Add the token to X-XSRF-TOKEN header
+    request.headers['X-XSRF-TOKEN'] = decodeURIComponent(token);
+  }
+  return request;
 });
 
 export const authService = {
@@ -24,7 +45,7 @@ export const authService = {
   },
   
   getUser: async () => {
-    return api.get('/user');
+    return api.get('/api/user');
   },
 };
 
@@ -47,6 +68,10 @@ export const todoService = {
   
   delete: async (id) => {
     return api.delete(`/api/todos/${id}`);
+  },
+  
+  getAiInsight: async () => {
+    return api.get('/api/ai/get-insight');
   },
 };
 

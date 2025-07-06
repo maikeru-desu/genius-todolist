@@ -29,6 +29,7 @@ final class UpdateTodoRequest extends FormRequest
             'title' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
             'due_date' => 'nullable|date',
+            'target_time' => 'nullable|date_format:H:i',
             'is_completed' => 'nullable|boolean',
             'priority' => ['nullable', new Enum(TaskPriority::class)],
         ];

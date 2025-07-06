@@ -1,33 +1,20 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import useAuth from '../composables/useAuth';
+import { ref, computed } from 'vue';
+import { marked } from 'marked';
+import useAi from '../composables/useAi';
+import useTodos from '../composables/useTodos';
 
-const { user, logout, isUserLoading } = useAuth();
+// Get todos data using Vue Query
+const { 
+  todos,
+  isLoadingTodos,
+  todosError,
+  refreshTodos,
+  updateTodo
+} = useTodos();
 
-// Placeholder data for demonstration
-const todos = ref([
-  {
-    id: 1,
-    title: 'Finish project presentation',
-    completed: false,
-    priority: 'high',
-    due_date: '2025-07-01T17:00:00',
-  },
-  {
-    id: 2,
-    title: 'Review marketing strategy',
-    completed: false,
-    priority: 'medium',
-    due_date: '2025-07-02T10:00:00',
-  },
-  {
-    id: 3,
-    title: 'Send weekly newsletter',
-    completed: false,
-    priority: 'low',
-    due_date: '2025-07-03T09:00:00',
-  },
-]);
+// Get AI insights using Vue Query
+const { aiInsight, isLoadingInsight, insightError, refreshInsight } = useAi();
 
 // Formatting functions
 const formatDate = (dateString) => {
@@ -36,40 +23,79 @@ const formatDate = (dateString) => {
 };
 
 const getPriorityClass = (priority) => {
-  switch (priority) {
-    case 'high':
-      return 'bg-red-100 text-red-800';
-    case 'medium':
-      return 'bg-yellow-100 text-yellow-800';
-    case 'low':
-      return 'bg-green-100 text-green-800';
-    default:
-      return 'bg-gray-100 text-gray-800';
+  // Handle priority as either string or number (from enum)
+  if (typeof priority === 'number') {
+    switch (priority) {
+      case 2: // HIGH
+        return 'bg-red-100 text-red-800';
+      case 1: // MEDIUM
+        return 'bg-yellow-100 text-yellow-800';
+      case 0: // LOW
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  } else {
+    // Legacy string support
+    switch (priority) {
+      case 'high':
+        return 'bg-red-100 text-red-800';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'low':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  }
+};
+
+const formatPriority = (priority) => {
+  // Handle priority as either string or number (from enum)
+  if (typeof priority === 'number') {
+    switch (priority) {
+      case 2: return 'High';
+      case 1: return 'Medium';
+      case 0: return 'Low';
+      default: return 'Unknown';
+    }
+  } else if (typeof priority === 'string') {
+    // For string values, capitalize first letter
+    return priority.charAt(0).toUpperCase() + priority.slice(1).toLowerCase();
+  }
+  return 'Unknown';
+};
+
+const formatTime = (timeString) => {
+  if (!timeString) return '';
+  // Handle different time formats
+  try {
+    const date = new Date(`1970-01-01T${timeString}`);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  } catch (e) {
+    return timeString;
   }
 };
 </script>
 
+<style scoped>
+.markdown-content :deep(strong) {
+  font-weight: 600;
+}
+
+.markdown-content :deep(ul) {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+.markdown-content :deep(li) {
+  margin-bottom: 0.25rem;
+}
+</style>
+
 <template>
   <div class="min-h-screen bg-gray-50">
-    <!-- Header -->
-    <header class="bg-white shadow">
-      <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
-        <h1 class="text-2xl font-bold tracking-tight text-indigo-600 flex items-center">
-          <span class="text-3xl mr-2">✅</span> Genius TodoList
-        </h1>
-        <div class="flex items-center gap-4">
-          <div v-if="!isUserLoading && user" class="text-sm text-gray-700">
-            Hello, {{ user.name }}
-          </div>
-          <button
-            @click="logout"
-            class="rounded-md bg-indigo-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          >
-            Logout
-          </button>
-        </div>
-      </div>
-    </header>
 
     <main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
       <!-- Loading state -->
@@ -93,31 +119,85 @@ const getPriorityClass = (priority) => {
         <!-- AI Insight Box -->
         <div class="mb-8 bg-indigo-50 p-4 rounded-lg border border-indigo-100 flex items-start">
           <div class="text-2xl mr-3">🧠</div>
-          <div>
-            <h4 class="font-medium text-indigo-800">AI Insights</h4>
-            <p class="text-indigo-700 text-sm">
-              You have 1 high-priority task due today. Based on your completion patterns, I recommend working on the presentation first as similar tasks have taken you approximately 2 hours to complete.
-            </p>
+          <div class="w-full">
+            <div class="flex justify-between items-center">
+              <h4 class="font-medium text-indigo-800">AI Insights</h4>
+              <button 
+                v-if="!isLoadingInsight" 
+                @click="refreshInsight()" 
+                class="text-xs text-indigo-600 hover:text-indigo-800"
+                title="Refresh insights"
+              >
+                ↻ Refresh
+              </button>
+            </div>
+            
+            <!-- Loading state -->
+            <div v-if="isLoadingInsight" class="flex items-center space-x-2 py-2">
+              <div class="animate-spin h-4 w-4 border-t-2 border-b-2 border-indigo-600 rounded-full"></div>
+              <p class="text-indigo-700 text-sm">Generating insights...</p>
+            </div>
+            
+            <!-- Error state -->
+            <p v-else-if="insightError" class="text-red-600 text-sm">{{ insightError }}</p>
+            
+            <!-- Success state -->
+            <div v-else-if="aiInsight" class="text-indigo-700 text-sm markdown-content" v-html="marked(aiInsight)"></div>
+            
+            <!-- Empty state -->
+            <p v-else class="text-indigo-700 text-sm">No insights available.</p>
           </div>
         </div>
 
+        <!-- Todo List Header with Refresh Button -->
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-medium text-gray-900">Your Tasks</h3>
+          <button 
+            v-if="!isLoadingTodos" 
+            @click="refreshTodos()" 
+            class="text-xs text-indigo-600 hover:text-indigo-800"
+            title="Refresh todos"
+          >
+            ↻ Refresh
+          </button>
+        </div>
+        
         <!-- Todo List -->
         <div class="overflow-hidden bg-white shadow sm:rounded-lg">
-          <ul role="list" class="divide-y divide-gray-200">
+          <!-- Loading state -->
+          <div v-if="isLoadingTodos" class="flex justify-center py-8">
+            <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-600"></div>
+          </div>
+          
+          <!-- Error state -->
+          <div v-else-if="todosError" class="p-4 text-center">
+            <p class="text-red-600">Failed to load tasks. Please try again.</p>
+            <button @click="refreshTodos()" class="mt-2 text-indigo-600 hover:text-indigo-800">Retry</button>
+          </div>
+          
+          <!-- Empty state -->
+          <div v-else-if="todos.length === 0" class="p-8 text-center">
+            <p class="text-gray-500">No tasks found. Add your first task to get started!</p>
+          </div>
+          
+          <!-- Tasks list -->
+          <ul v-else role="list" class="divide-y divide-gray-200">
             <li v-for="todo in todos" :key="todo.id" class="px-4 py-4 sm:px-6 hover:bg-gray-50">
               <div class="flex items-start gap-4">
                 <input
                   type="checkbox"
-                  :checked="todo.completed"
+                  :checked="todo.is_completed"
+                  @change="updateTodo({ id: todo.id, data: { is_completed: !todo.is_completed } })"
                   class="h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 mt-1"
                 />
                 <div class="min-w-0 flex-1">
-                  <p :class="['text-sm font-medium', todo.completed ? 'text-gray-400 line-through' : 'text-gray-900']">{{ todo.title }}</p>
+                  <p :class="['text-sm font-medium', todo.is_completed ? 'text-gray-400 line-through' : 'text-gray-900']">{{ todo.title }}</p>
                   <div class="mt-1 flex items-center gap-2 text-xs">
                     <span :class="['inline-flex rounded-full px-2 py-1 font-medium', getPriorityClass(todo.priority)]">
-                      {{ todo.priority.charAt(0).toUpperCase() + todo.priority.slice(1) }}
+                      {{ formatPriority(todo.priority) }}
                     </span>
                     <span class="text-gray-500">Due {{ formatDate(todo.due_date) }}</span>
+                    <span v-if="todo.target_time" class="text-gray-500">at {{ formatTime(todo.target_time) }}</span>
                   </div>
                 </div>
                 <div class="flex gap-2">
