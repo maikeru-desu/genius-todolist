@@ -4,8 +4,8 @@ import useAuth from '../composables/useAuth';
 
 const { login, authError, isLoading } = useAuth();
 
-const email = ref('');
-const password = ref('');
+const email = ref('test@example.com');
+const password = ref('password');
 
 const handleSubmit = () => {
   login({
