@@ -34,6 +34,7 @@ Genius TodoList is a modern, AI-enhanced task management application that helps 
 - **Sanctum**: API token authentication
 - **MySQL**: Database for storing todo items and user data
 - **Redis**: Cache layer for performance
+- **Pest PHP**: PHP Testing Framework for elegant testing
 
 ## 🛠️ Project Structure
 
@@ -134,6 +135,8 @@ http://localhost:5173
 
 ## 📘 API Documentation
 
+> **Complete API Documentation**: [View Postman Documentation](https://documenter.getpostman.com/view/44895195/2sB34cphxv)
+
 ### Authentication
 
 ```
@@ -178,6 +181,31 @@ DELETE /api/todos/{id}     # Delete a todo
 4. **View Dashboard**: See all tasks organized by priority and due date
 5. **Mark Complete**: Check off tasks as they're completed
 6. **Filter & Sort**: Organize tasks by different criteria
+
+## 🧪 Testing
+
+### Backend Tests
+
+The backend API is thoroughly tested using Pest PHP, Laravel's elegant testing framework. The test suite covers:
+
+- **Authentication**: Ensures only authenticated users can access protected endpoints
+- **CRUD Operations**: Complete test coverage for Create, Read, Update, and Delete operations on todos
+- **Validation**: Tests for proper input validation and error responses
+- **Authorization**: Verifies that users can only access and modify their own todos
+
+To run the tests:
+
+```bash
+cd backend
+php artisan test
+```
+
+Or for more detailed output:
+
+```bash
+cd backend
+./vendor/bin/pest
+```
 
 ## 🛣️ Roadmap
 
