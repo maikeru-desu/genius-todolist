@@ -156,23 +156,6 @@ PUT    /api/todos/{id}     # Update a todo
 DELETE /api/todos/{id}     # Delete a todo
 ```
 
-## 📸 Screenshots
-
-### Home Page
-<p align="center">
-  <img src="https://via.placeholder.com/800x400?text=Home+Page" alt="Home Page" />
-</p>
-
-### Dashboard
-<p align="center">
-  <img src="https://via.placeholder.com/800x400?text=Dashboard" alt="Dashboard" />
-</p>
-
-### Task Creation
-<p align="center">
-  <img src="https://via.placeholder.com/800x400?text=Task+Creation" alt="Task Creation" />
-</p>
-
 ## 🔍 Usage
 
 1. **Login/Registration**: Create an account or login to existing account
