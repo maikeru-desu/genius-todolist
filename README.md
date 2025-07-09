@@ -5,7 +5,7 @@
 > AI-powered todo list application that helps prioritize tasks intelligently
 
 <p align="center">
-  <img src="https://via.placeholder.com/800x400?text=Genius+TodoList+Screenshot" alt="Genius TodoList Screenshot" />
+  <img src="https://maikeru-desu.quest/project-thumbnails/genius-todolist.png" alt="Genius TodoList Screenshot" />
 </p>
 
 ## 📝 Overview
